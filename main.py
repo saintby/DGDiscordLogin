@@ -6,11 +6,12 @@ import asyncio
 command_sync_flags = commands.CommandSyncFlags.default()
 command_sync_flags.sync_commands_debug = True
 
-bot = commands.Bot(command_prefix = '!', test_guilds = [Your guilds here...], intents = disnake.Intents.all(), command_sync_flags=command_sync_flags)
+bot = commands.Bot(command_prefix = '!', test_guilds = [Your guild here], intents = disnake.Intents.all(), command_sync_flags=command_sync_flags)
 
 @bot.event
 async def on_ready():
     print("Bot has started!")
+    print("absolute?")
 
 class LoginModal(disnake.ui.Modal):
     def __init__(self):
@@ -31,13 +32,26 @@ class LoginModal(disnake.ui.Modal):
 
     # Обработка ответа
     async def callback(self, inter: disnake.ModalInteraction):
-        await inter.author.edit(nick=inter.data.components[0]["components"][0]["value"])
-        await inter.author.add_roles(disnake.utils.get(inter.guild.roles, id=Your role here...))
+        channel = disnake.utils.get(inter.guild.channels, id=Your channel here)
+        author = inter.author
+
+        await author.edit(nick=inter.data.components[0]["components"][0]["value"])
+        await author.add_roles(disnake.utils.get(inter.guild.roles, id=Your role here))
         await inter.response.send_message("ㅤ")
         await inter.delete_original_response(delay=None)
-        await asyncio.sleep(3)
-        await inter.author.edit(nick=None)
-        await inter.author.remove_roles(disnake.utils.get(inter.guild.roles, id=Your role here...))
+
+        embed = disnake.Embed(title="Новый участник",
+                      description=f"""Участник: {author.mention}\nНикнейм: {author.name}\nВерифицирован: {"Да" if inter.author.roles else "Нет"}""",
+                      colour=0x00b0f4)
+
+        embed.set_author(name="DragonsGrief")
+
+        await channel.send(embed=embed)
+        
+        await asyncio.sleep(1200)
+        
+        await author.edit(nick=None)
+        await author.remove_roles(disnake.utils.get(inter.guild.roles, id=Your role here))
 
 @bot.command()
 async def soo(ctx):
@@ -69,4 +83,4 @@ async def modal(inter):
     modal = LoginModal()
     await inter.response.send_modal(modal=modal)
 
-bot.run("Your token here...")
+bot.run("Your token here")
